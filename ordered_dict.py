@@ -9,30 +9,27 @@ class OrderedDict:
     def values(self):
         return self._values
 
+    def __setitem__(self, key, value):
+        self._keys.append(key)
+        self._values.append(value)
+
     def items(self):
         result = []
         for key, value in zip(self._keys, self._values):
             result.append((key, value))
         return result
 
-    def __len__(self):
-        return len(self._keys)
-
     def __getitem__(self, a_key):
-        for key, value in zip(self._keys, self._values):
+        for key, value in self.items():
             if key == a_key:
                 return value
         raise KeyError(repr(a_key))
 
-    def __setitem__(self, key, value):
-        self._keys.append(key)
-        self._values.append(value)
-
     def __contains__(self, a_key):
-        for key, value in zip(self._keys, self._values):
-            if key == a_key:
-                return True
-        return False
+        return a_key in self.keys()
+
+    def __len__(self):
+        return len(self._keys)
 
     def __eq__(self, other):
         if len(self) != len(other):
@@ -42,18 +39,20 @@ class OrderedDict:
                 return False
         return True
 
+    #not necessary in py3 
     def __ne__(self, other):
         return not self == other
+        return not self == other
 
-    @classmethod
-    def from_keys(cls, sequence):
-        new = OrderedDict()
-        # preferred is dynamic:
-        # new = cls()
+    def __str__(self):
+        s = '{'
+        for key, value in zip(self._keys, self._values):
+            s += '{}: {}, '.format(repr(key), repr(value))
+        s = s.rstrip(', ')
+        s += '}'
+        return s
 
-        for elem in sequence:
-            new[elem] = None
-        return new
+    __repr__ = __str__
 
     def __add__(self, other):
         new = OrderedDict()
@@ -65,14 +64,10 @@ class OrderedDict:
 
         return new
 
-    def __str__(self):
-        s = '{'
-        for key, value in zip(self._keys, self._values):
-            s += '{}: {}, '.format(repr(key), repr(value))
-            # Same as: (with the !r trick):
-            # s += '{!r}: {!r}, '.format(key, value)
-        s = s.rstrip(', ')
-        s += '}'
-        return s
+    @classmethod
+    def from_keys(cls, sequence):
+        new = OrderedDict()
 
-    __repr__ = __str__
+        for elem in sequence:
+            new[elem] = None
+        return new
